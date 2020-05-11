@@ -1,46 +1,38 @@
-import java.util.Arrays;
 import java.util.Scanner;
 import java.util.regex.Pattern;
 
 class BetLogic {
-    static double[] Betting(double[] prevBets, double[] balance){
-        if(prevBets == null){
-            prevBets = new double[Constants.numOfPlayers];
-            Arrays.fill(prevBets, .0001);
-        }
-        double highestBid = -1;
+    static double[] Betting(double[] playersBet, double[] prevBets, double[] balance){
 
         int playersIn = Constants.numOfPlayers;
-
-        double[] playersBet = new double[Constants.numOfPlayers];
         boolean[] playerFold = new boolean[Constants.numOfPlayers];
 
         for (int i = 0; i < prevBets.length; i++) {
-            if (prevBets[i] <= 0) {
+            if (prevBets[i] < 0) {
                 playerFold[i] = true;
                 playersIn--;
             }
         }
-
-        raiseBet(true, highestBid, playersBet, playerFold, playersIn, balance);
+        raiseBet(true, -1, playersBet, playerFold, playersIn, balance);
 
         return playersBet;
     }
 
     private static void raiseBet(boolean first, double highestBid, double[] playersBet, boolean[] playerFold, int playersIn, double[] balance){
-        boolean allIn = true;
-        for(int i = 0; i < Constants.numOfPlayers; i++){
-            if(!playerFold[i] && allIn){
-                allIn = playersBet[i] == highestBid || playersBet[i] == balance[i];
-            }
-        }
-        if(!allIn || first){
+        boolean[] isPlayerIn = new boolean[Constants.numOfPlayers];
+        boolean allIn = false;
+        for(int i = 0; i < Constants.numOfPlayers; i++)
+            isPlayerIn[i] = playersBet[i] == highestBid || playersBet[i] == balance[i];
+        for(boolean bool : isPlayerIn)
+            allIn = bool || allIn;
+        if(first || !allIn){
             for (int j = 0; j < playersBet.length; j++) {
                 if(playersBet[j] < 0 && !playerFold[j]) {
                     playerFold[j] = true;
                     playersIn--;
                 }
-                if ((playersBet[j] < highestBid || playersBet[j] < balance[j]) && !playerFold[j]) {
+                boolean betRange = playersBet[j] < highestBid || playersBet[j] < balance[j];
+                if (betRange && !playerFold[j]) {
                     playersBet[j] = betting(j);
                     if(balance[j] < playersBet[j]){
                         System.out.println("Please try again");
@@ -50,7 +42,7 @@ class BetLogic {
                     }
                 }
             }
-            if(playersIn != 0)
+            if(playersIn >= 0)
                 raiseBet(false, highestBid, playersBet, playerFold, playersIn, balance);
         }
     }
@@ -59,8 +51,8 @@ class BetLogic {
         Scanner betAmount = new Scanner(System.in);
         System.out.println("How much do you want to bet player " + (player + 1) + "?");
         String bets = betAmount.next();
-        if (!Pattern.matches("[0-9]+", bets))
-            return -1;
-        return Math.abs(Double.parseDouble(bets));
+        if (!Pattern.matches("[a-zA-Z]+", bets) && Pattern.matches("[0-9]+", bets) && bets.length() < 6)
+            return Math.abs(Double.parseDouble(bets));
+        return -1;
     }
 }

@@ -107,7 +107,7 @@ public class Compare {
         return royal;
     }
 
-    static int winner(){
+    static int winner(double[] folded){
         double[] points = new double[Constants.numOfPlayers];
         double[] highCard = highestCard();
         int[][] sets = findSets();
@@ -142,13 +142,13 @@ public class Compare {
         }
         double mostPoints = 0;
 
-        for(double pts : points)
-            mostPoints = Math.max(pts, mostPoints);
+        for(int i = 0; i < Constants.numOfPlayers; i++) {
+            mostPoints = folded[i] != -1 ? Math.max(points[i], mostPoints) : mostPoints;
+        }
 
-        for(int i = 0; i < points.length; i++) {
+        for(int i = 0; i < points.length; i++)
             if (points[i] == mostPoints)
                 return i + 1;
-        }
         return -1;
     }
 

@@ -72,11 +72,14 @@ public class PokerMain {
                 System.out.println();
         }
         int sum = 0;
+        prevBet = new double[Constants.numOfPlayers];
+        double[] playerBet = new double[Constants.numOfPlayers];
         for(int j = 0; j < Constants.subRounds; j++){
             if(keepPlaying){
                 Deck.printCard(tableRounds[j]);
-                double[] bets = BetLogic.Betting(prevBet, playerCred);
+                double[] bets = BetLogic.Betting(playerBet, prevBet, playerCred);
                 for(int k = 0; k < bets.length; k++){
+                    prevBet[k] = Math.min(bets[k], prevBet[k]);
                     if(bets[k] > 0){
                         sum += bets[k];
                         playerCred[k] -= bets[k];
@@ -87,7 +90,7 @@ public class PokerMain {
             }
         }
 
-        int winner = Compare.winner();
+        int winner = Compare.winner(prevBet);
         for(int i = 1; i <= Constants.numOfPlayers; i++)
             if(i == winner) playerCred[i - 1] += sum;
         for(int j = 0; j < Constants.spaces; j++)
@@ -105,7 +108,7 @@ public class PokerMain {
             askNumber();
         }
         Constants.numOfPlayers = Integer.parseInt(numberOfPlayers);
-        if(Constants.numOfPlayers < 1 || Constants.numOfPlayers > 23){
+        if(Constants.numOfPlayers <= 1 || Constants.numOfPlayers > 23){
             System.out.println("Number of players out of range. Please try again.");
             askNumber();
         }
