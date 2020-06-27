@@ -1,11 +1,14 @@
 import java.util.ArrayList;
-import java.util.Arrays;
 
 public class NeuralNetwork {
+
     private ArrayList<Neuron[]> brain;
     private double[] networkBias;
     private Functions functions = new Functions();
 
+//    Initializes the neural network and takes in an integer and double array
+//    the int array is used to determine the network size and the double array is used to
+//    determine search bounds
     public NeuralNetwork(int[] allLayers, double[] searchBounds){
         brain = new ArrayList<>();
         networkBias = new double[allLayers.length];
@@ -23,11 +26,12 @@ public class NeuralNetwork {
             }
         }
         for(int lastNeurons = 0; lastNeurons < brain.get(brain.size() - 1).length; lastNeurons++)
-            brain.get(brain.size() - 1)[lastNeurons].setActivation(functions.LEAKYRELU_FUNCTION);
+            brain.get(brain.size() - 1)[lastNeurons].setActivation(functionName.LEAKY_RECT_LIN);
 
         Connect(searchBounds[0], searchBounds[1]);
     }
 
+//    Initializing the weights with random values
     public void Connect(Double min, Double max){
         for(int layer = 0; layer < brain.size() - 1; layer++){
             networkBias[layer] = functions.getRandomDouble(min, max);
@@ -38,6 +42,7 @@ public class NeuralNetwork {
         }
     }
 
+//    Predict predicts what the output should be given what is passed in
     public Double[] predict(Double[] input) throws Exception {
         if(input.length != brain.get(0).length)
             throw new Exception("Data does not match input size");
@@ -64,6 +69,7 @@ public class NeuralNetwork {
         return output;
     }
 
+//    findError changes the error values on the neurons
     private void findError(Double[] target){
         for(int outNeuron = 0; outNeuron < brain.get(brain.size() - 1).length; outNeuron++){
             Double error = calcError(target[outNeuron], brain.size() - 1, outNeuron, false);
@@ -82,12 +88,15 @@ public class NeuralNetwork {
         }
     }
 
+//    calcError calculates what the error should be
     private Double calcError(Double target, int layer, int neuron, boolean sum){
-        int activation = brain.get(layer)[neuron].getActivation();
+        functionName activation = brain.get(layer)[neuron].getActivation();
         Double weight = sum ? target : brain.get(layer)[neuron].getData() - target;
         return functions.getValue(activation, brain.get(layer)[neuron].getData(), true) * weight;
     }
 
+//    changeWeights changes the value of the connections based on the learning rate, data in the
+//    neuron, and the error of the neuron
     private void changeWeights(double learningRate){
         for(int layer = 1; layer < brain.size(); layer++){
             for(int neuron = 0; neuron < brain.get(layer).length; neuron++){
@@ -99,22 +108,22 @@ public class NeuralNetwork {
         }
     }
 
+//    pruneNetwork has not been implemented but will delete synapses that have a small weight
+//    training after pruning is necessary considering the structure of the network is changed
     public void pruneNetwork(double threshold){
-        ArrayList<Double> connections = new ArrayList<>();
         for (Neuron[] neurons : brain) {
             for (Neuron neuron : neurons) {
                 int synapses = neuron.numberOfSynapses() - 1;
-                for (int synapse = synapses; synapse >= 0; synapse--)
-                    connections.add(neuron.getSynapse(synapse));
-//                    if (Math.abs(neuron.getSynapse(synapse)) <= threshold) {
-//                        neuron.removeSynapse(synapse);
-//                        connections.add(neuron.getSynapse(synapse));
-//                    }
+                for (int synapse = synapses; synapse >= 0; synapse--) {
+                    if (Math.abs(neuron.getSynapse(synapse)) <= threshold)
+                        neuron.removeSynapse(synapse);
+                }
             }
         }
-        System.out.println(Arrays.toString(connections.toArray()));
     }
 
+//    trainNeuralNetwork is the method that handles predict, findError, and changeWeights
+//    and passes values correctly
     public void trainNeuralNetwork(Double[] input, Double[] target, double learningRate) throws Exception {
         predict(input);
         findError(target);
