@@ -7,7 +7,7 @@ public class App {
         int[] layerSizes = {2, 4, 1};
         double[] bounds = {-.8, .8};
 
-        NeuralNetwork network = new NeuralNetwork(layerSizes, bounds, "C:\\Users\\Josep\\Desktop\\neuralTest.txt");
+        NeuralNetwork network = new NeuralNetwork(layerSizes, bounds, "\*location of the text file*\");
 
         DataSets trainingData = new DataSets();
 
@@ -34,7 +34,7 @@ public class App {
             System.out.println(Arrays.toString(network.predict(new Double[]{0.3, 0.4})));
             System.out.println(Arrays.toString(network.predict(new Double[]{0.3, 0.2})));
 
-            ReconnectBrain reconnectBrain = new ReconnectBrain("C:\\Users\\Josep\\Desktop\\neuralTest.txt");
+            ReconnectBrain reconnectBrain = new ReconnectBrain("\*location of the text file*\");
             NeuralNetwork newNetwork = reconnectBrain.reconstruct();
 
             System.out.println("RECONSTRUCTED BRAIN");
