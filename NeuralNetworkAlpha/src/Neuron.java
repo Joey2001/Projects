@@ -1,4 +1,5 @@
 import java.util.ArrayList;
+import java.util.Arrays;
 
 public class Neuron {
     private ArrayList<Double> synapses;
@@ -62,5 +63,10 @@ public class Neuron {
 
     public int numberOfSynapses(){
         return synapses.size();
+    }
+
+    @Override
+    public String toString() {
+        return Arrays.toString(synapses.toArray());
     }
 }

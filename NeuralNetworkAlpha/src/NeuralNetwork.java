@@ -1,17 +1,20 @@
-import java.util.ArrayList;
+import java.io.*;
+import java.util.*;
 
 public class NeuralNetwork {
 
     private ArrayList<Neuron[]> brain;
     private double[] networkBias;
     private Functions functions = new Functions();
+    private String saveDestination;
 
 //    Initializes the neural network and takes in an integer and double array
 //    the int array is used to determine the network size and the double array is used to
 //    determine search bounds
-    public NeuralNetwork(int[] allLayers, double[] searchBounds){
+    public NeuralNetwork(int[] allLayers, double[] searchBounds, String saveDestination){
         brain = new ArrayList<>();
         networkBias = new double[allLayers.length];
+        this.saveDestination = saveDestination;
 
         for(int layer = 0; layer < allLayers.length; layer++){
             Neuron[] aLayer = new Neuron[allLayers[layer]];
@@ -29,6 +32,18 @@ public class NeuralNetwork {
             brain.get(brain.size() - 1)[lastNeurons].setActivation(functionName.LEAKY_RECT_LIN);
 
         Connect(searchBounds[0], searchBounds[1]);
+    }
+
+    public NeuralNetwork(ArrayList<Neuron[]> brain, double[] networkBias){
+        this.brain = brain;
+        this.networkBias = networkBias;
+    }
+
+    public NeuralNetwork(String brainLocation){
+        ReconnectBrain reconnectBrain = new ReconnectBrain(brainLocation);
+        NeuralNetwork newBrain = reconnectBrain.reconstruct();
+        this.brain = newBrain.getBrain();
+        this.networkBias = newBrain.getBias();
     }
 
 //    Initializing the weights with random values
@@ -128,5 +143,67 @@ public class NeuralNetwork {
         predict(input);
         findError(target);
         changeWeights(learningRate);
+    }
+
+//    Used for diagnosing the network, helpful and gives a little more information
+    public void printNetwork(){
+        for(Neuron[] neurons : brain){
+            for(Neuron neuron : neurons){
+                System.out.println(neuron.toString());
+            }
+            System.out.println("LAYER CHANGE");
+        }
+    }
+
+    private ArrayList<Neuron[]> getBrain(){
+        return brain;
+    }
+
+    private double[] getBias(){
+        return networkBias;
+    }
+
+    public void saveBrain(){
+
+        StringBuilder s = new StringBuilder();
+        s.append(Arrays.toString(networkBias)).append("B");
+        for (Neuron[] neurons : this.brain) {
+            for (Neuron neuron : neurons) {
+                s.append(neuron.toString()).append("N");
+            }
+            s.append("L");
+        }
+
+        String neuralText = s.toString();
+
+        try(FileWriter fileWriter = new FileWriter(saveDestination)){
+            fileWriter.write(neuralText);
+            fileWriter.close();
+        } catch(IOException ignored){
+
+        }
+    }
+
+    public ArrayList<String[]> pullFromText(String finalDestination) {
+        try(FileReader fileReader = new FileReader(finalDestination)){
+            int i;
+            StringBuilder s = new StringBuilder();
+            while((i = fileReader.read()) != -1){
+                s.append((char) i);
+            }
+            String part1 = s.toString().substring(0, s.toString().indexOf("B"));
+            String part2 = s.toString().substring(s.toString().indexOf("B") + 1);
+            String[] part3 = part2.split("L");
+            ArrayList<String[]> part4 = new ArrayList<>();
+            part4.add(part1.split("B"));
+            for (String string : part3)
+                part4.add(string.split("N"));
+            return part4;
+        }catch(FileNotFoundException ignored){
+
+        }catch (IOException e) {
+            e.printStackTrace();
+        }
+        return null;
     }
 }
