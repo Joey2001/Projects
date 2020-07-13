@@ -145,7 +145,7 @@ public class NeuralNetwork {
 
     //    trainNeuralNetwork is the method that handles predict, findError, and changeWeights
 //    and passes values correctly
-    private void trainNeuralNetwork(Double[] input, Double[] target, double learningRate, int iteration, int totalIteration, boolean limitLearning) throws Exception {
+    private void trainNeuralNetwork(Double[] input, Double[] target, double learningRate, boolean fixedStep) throws Exception {
         predict(input);
 
         Double[] findError = findError(target);
@@ -155,17 +155,16 @@ public class NeuralNetwork {
         deltaError.add(error);
         if(deltaError.size() > 3) deltaError.remove(0);
 
-        boolean fixedStep = limitLearning && .8 * iteration == totalIteration;
-
         double adaptiveLearningRate = (fixedStep || deltaError.size() <= 2) ? learningRate : AdaptiveLearningRate(deltaError);
 
         changeWeights(adaptiveLearningRate);
     }
 
     public void train(DataSets trainingData, int iterations, double pruningThreshold, double defaultLearningRate) throws Exception {
-        for(int iteration = 0; iteration < iterations/2; iteration++){
+        iterations /= 2;
+        for(int iteration = 0; iteration < iterations; iteration++){
             for (int j = 0; j < trainingData.size(); j++) {
-                trainNeuralNetwork(trainingData.getDataSet(j)[0], trainingData.getDataSet(j)[1], defaultLearningRate, iteration, iterations, false);
+                trainNeuralNetwork(trainingData.getDataSet(j)[0], trainingData.getDataSet(j)[1], defaultLearningRate, false);
             }
         }
 
@@ -173,7 +172,8 @@ public class NeuralNetwork {
 
         for(int iteration = 0; iteration < iterations/2; iteration++){
             for (int j = 0; j < trainingData.size(); j++) {
-                trainNeuralNetwork(trainingData.getDataSet(j)[0], trainingData.getDataSet(j)[1], defaultLearningRate, iteration, iterations, true);
+                boolean fixedStep = .8 * iteration == iterations;
+                trainNeuralNetwork(trainingData.getDataSet(j)[0], trainingData.getDataSet(j)[1], defaultLearningRate, fixedStep);
             }
         }
 
