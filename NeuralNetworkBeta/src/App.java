@@ -7,7 +7,7 @@ public class App {
         int[] layerSizes = {2, 3, 1};
         double[] bounds = {-1, 1};
 
-        NeuralNetwork network = new NeuralNetwork(layerSizes, bounds, "C:\\Users\\Josep\\Desktop\\neuralTest.txt");
+        NeuralNetwork network = new NeuralNetwork(layerSizes, bounds, "/*Save location*/");
 
         DataSets trainingData = new DataSets();
 
@@ -28,7 +28,7 @@ public class App {
             System.out.println(Arrays.toString(network.predict(new Double[]{0.3, 0.4})));
             System.out.println(Arrays.toString(network.predict(new Double[]{0.3, 0.2})));
 
-            NeuralNetwork newNetwork = new NeuralNetwork("C:\\Users\\Josep\\Desktop\\neuralTest.txt");
+            NeuralNetwork newNetwork = new NeuralNetwork("/*Save location*/");
 
             System.out.println("RECONSTRUCTED BRAIN");
             System.out.println(Arrays.toString(newNetwork.predict(new Double[]{0.2, 0.2})));
