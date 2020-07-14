@@ -49,9 +49,12 @@ public class NeuralNetwork {
             for(int neuron = 0; neuron < brain.get(layer).length; neuron++) {
                 for (int nextNeuron = 0; nextNeuron < brain.get(layer + 1).length; nextNeuron++)
                     brain.get(layer)[neuron].setSynapse(nextNeuron, functions.getRandomDouble(min, max));
-                brain.get(layer)[neuron].setBias(functions.getRandomDouble(min, max));
             }
         }
+
+        for (Neuron[] layer : brain)
+            for (Neuron neuron : layer)
+                neuron.setBias(functions.getRandomDouble(min, max));
     }
 
     //    Predict predicts what the output should be given what is passed in
@@ -145,7 +148,7 @@ public class NeuralNetwork {
 
     //    trainNeuralNetwork is the method that handles predict, findError, and changeWeights
 //    and passes values correctly
-    private void trainNeuralNetwork(Double[] input, Double[] target, double learningRate, boolean fixedStep) throws Exception {
+    private void trainNeuralNetwork(Double[] input, Double[] target, double learningRate, boolean fixedEnd) throws Exception {
         predict(input);
 
         Double[] findError = findError(target);
@@ -155,7 +158,7 @@ public class NeuralNetwork {
         deltaError.add(error);
         if(deltaError.size() > 3) deltaError.remove(0);
 
-        double adaptiveLearningRate = (fixedStep || deltaError.size() <= 2) ? learningRate : AdaptiveLearningRate(deltaError);
+        double adaptiveLearningRate = (fixedEnd || deltaError.size() <= 2) ? learningRate : AdaptiveLearningRate(deltaError);
 
         changeWeights(adaptiveLearningRate);
     }
@@ -172,8 +175,8 @@ public class NeuralNetwork {
 
         for(int iteration = 0; iteration < iterations/2; iteration++){
             for (int j = 0; j < trainingData.size(); j++) {
-                boolean fixedStep = .8 * iteration == iterations;
-                trainNeuralNetwork(trainingData.getDataSet(j)[0], trainingData.getDataSet(j)[1], defaultLearningRate, fixedStep);
+                boolean fixedEnd = .8 * iteration > iterations;
+                trainNeuralNetwork(trainingData.getDataSet(j)[0], trainingData.getDataSet(j)[1], defaultLearningRate, fixedEnd);
             }
         }
 
